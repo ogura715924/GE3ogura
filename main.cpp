@@ -468,7 +468,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     // DirectX初期化処理　ここまで
 #pragma endregion
 
-    // DirectInputの初期化
+    // DirectInputの初期化(キーボードの処理)
     ComPtr<IDirectInput8> directInput;
     result = DirectInput8Create(
         w.hInstance, DIRECTINPUT_VERSION, IID_IDirectInput8, (void**)&directInput, nullptr);
@@ -1029,7 +1029,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
         // ２．描画先の変更
         // レンダーターゲットビューのハンドルを取得
         D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle = rtvHeap->GetCPUDescriptorHandleForHeapStart();
-        rtvHandle.ptr += bbIndex * device->GetDescriptorHandleIncrementSize(rtvHeapDesc.Type);
+        rtvHandle.ptr += 
+            bbIndex * device->GetDescriptorHandleIncrementSize(rtvHeapDesc.Type);
         // 深度ステンシルビュー用デスクリプタヒープのハンドルを取得
         D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle = dsvHeap->GetCPUDescriptorHandleForHeapStart();
         commandList->OMSetRenderTargets(1, &rtvHandle, false, &dsvHandle);
