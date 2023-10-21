@@ -14,8 +14,19 @@ class Input
 	//更新
 	void Update();
 
+	//任意のボタンを押されている
+	bool PushKey(BYTE keyNumber);
+	//任意のボタンが押された瞬間
+	bool TriggerKey(BYTE keyNumber);
+
 private://メンバ変数
+	Microsoft::WRL::ComPtr<IDirectInput8>driectInput;
+	Microsoft::WRL::ComPtr<IDirectInputDevice8>keyboard;
 	// キーボードデバイスの生成
-	ComPtr<IDirectInputDevice8> keyboard;
+	
+	//全キーの状態
+	BYTE key[256] = {};
+	//前回のキーの状態
+	BYTE keyPre[256] = {};
 };
 
