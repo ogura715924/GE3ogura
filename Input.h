@@ -20,7 +20,7 @@ class Input
 	bool TriggerKey(BYTE keyNumber);
 
 private://メンバ変数
-	Microsoft::WRL::ComPtr<IDirectInput8>driectInput;
+	Microsoft::WRL::ComPtr<IDirectInput8>directInput;
 	Microsoft::WRL::ComPtr<IDirectInputDevice8>keyboard;
 	// キーボードデバイスの生成
 	
