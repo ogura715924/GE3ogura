@@ -14,6 +14,8 @@ class Input
 	//更新
 	void Update();
 
+	bool PushKey(BYTE keyNumber);
+
 private://メンバ変数
 	// キーボードデバイスの生成
 	ComPtr<IDirectInputDevice8> keyboard;

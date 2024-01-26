@@ -38,3 +38,8 @@ void Input::Update()
     BYTE key[256] = {};
     keyboard->GetDeviceState(sizeof(key), key);
 }
+
+bool Input::PushKey(BYTE keyNumber)
+{
+    return false;
+}
