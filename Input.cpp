@@ -31,15 +31,34 @@ void Input::Initialize(HINSTANCE hInstance, HWND hwnd)
 
 void Input::Update()
 {
-   
+    for (int i = 0; i < 256; i++) {
+        keyPre[i] = key[i];
+    }
+    //上と同じ機能
+    //keyPreの中にkeyの情報をコピーする
+    memcpy(keyPre, key, sizeof(key));
+
     // キーボード情報の取得開始
     keyboard->Acquire();
-    // 全キーの入力状態を取得する
-    BYTE key[256] = {};
+   
     keyboard->GetDeviceState(sizeof(key), key);
 }
 
 bool Input::PushKey(BYTE keyNumber)
 {
+    //指定キーを押していれば
+    if (key[keyNumber]) {
+        return true;
+    }
+    //そうでなければfalseを返す
+    return false;
+}
+
+bool Input::TriggerKey(BYTE keyNumber)
+{
+    //指定キーを押していれば
+    if (keyPre[keyNumber]) {
+        return true;
+    }
     return false;
 }
