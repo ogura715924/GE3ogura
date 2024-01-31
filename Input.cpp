@@ -2,11 +2,10 @@
 
 #include <cassert>
 
+using namespace Microsoft::WRL;
 
 #pragma comment(lib, "dinput8.lib")
 #pragma comment(lib, "dxguid.lib")
-
-
 
 void Input::Initialize(WinApp* winApp)
 {
