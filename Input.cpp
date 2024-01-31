@@ -8,14 +8,16 @@
 
 
 
-void Input::Initialize(HINSTANCE hInstance, HWND hwnd)
+void Input::Initialize(WinApp* winApp)
 {
+    WinApp_ = winApp;
+
     HRESULT result;
 
     // DirectInputの初期化(キーボードの処理)
     ComPtr<IDirectInput8> directInput;
     result = DirectInput8Create(
-        hInstance, DIRECTINPUT_VERSION, IID_IDirectInput8, (void**)&directInput, nullptr);
+       WinApp_->GetHInstance(), DIRECTINPUT_VERSION, IID_IDirectInput8, (void**)&directInput, nullptr);
     assert(SUCCEEDED(result));
 
   
@@ -25,7 +27,7 @@ void Input::Initialize(HINSTANCE hInstance, HWND hwnd)
     assert(SUCCEEDED(result));
     // 排他制御レベルのセット
     result = keyboard->SetCooperativeLevel(
-        hwnd, DISCL_FOREGROUND | DISCL_NONEXCLUSIVE | DISCL_NOWINKEY);
+        WinApp_->GetHwnd(), DISCL_FOREGROUND | DISCL_NONEXCLUSIVE | DISCL_NOWINKEY);
     assert(SUCCEEDED(result));
 }
 
