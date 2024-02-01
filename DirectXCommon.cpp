@@ -9,63 +9,21 @@
 
 using namespace Microsoft::WRL;
 
-void DirectXCommon::Initilize()
+void DirectXCommon::Initilize(WinApp*winApp)
 {
+   this-> winApp_ = winApp;
+
     // DirectX初期化処理　ここから
   
     ComPtr<IDXGISwapChain4> swapChain;
-    ComPtr<ID3D12CommandAllocator> commandAllocator;
-    ComPtr<ID3D12GraphicsCommandList> commandList;
-    ComPtr<ID3D12CommandQueue> commandQueue;
     ComPtr<ID3D12DescriptorHeap> rtvHeap;
 
 
-
-    // コマンドアロケータを生成
-    result = device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&commandAllocator));
-    assert(SUCCEEDED(result));
-
-    // コマンドリストを生成
-    result = device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, commandAllocator.Get(), nullptr, IID_PPV_ARGS(&commandList));
-    assert(SUCCEEDED(result));
-
-    //コマンドキューの設定
-    D3D12_COMMAND_QUEUE_DESC commandQueueDesc{};
-    //コマンドキューを生成
-    result = device->CreateCommandQueue(&commandQueueDesc, IID_PPV_ARGS(&commandQueue));
-    assert(SUCCEEDED(result));
-
-    // スワップチェーンの設定
-    DXGI_SWAP_CHAIN_DESC1 swapChainDesc{};
-    swapChainDesc.Width = 1280;
-    swapChainDesc.Height = 720;
-    swapChainDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;  // 色情報の書式
-    swapChainDesc.SampleDesc.Count = 1; // マルチサンプルしない
-    swapChainDesc.BufferUsage = DXGI_USAGE_BACK_BUFFER; // バックバッファ用
-    swapChainDesc.BufferCount = 2;  // バッファ数を２つに設定
-    swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD; // フリップ後は破棄
-    swapChainDesc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
-
-    ComPtr<IDXGISwapChain1> swapChain1;
-    // スワップチェーンの生成
-    result = dxgiFactory->CreateSwapChainForHwnd(
-        commandQueue.Get(), winApp_->GetHwnd(), &swapChainDesc, nullptr, nullptr, &swapChain1);
-    assert(SUCCEEDED(result));
-
-    // SwapChain4を得る
-    swapChain1->QueryInterface(IID_PPV_ARGS(&swapChain));
-    assert(SUCCEEDED(result));
+    
 
     // デスクリプタヒープの設定
-    D3D12_DESCRIPTOR_HEAP_DESC rtvHeapDesc{};
     rtvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV; // レンダーターゲットビュー
     rtvHeapDesc.NumDescriptors = swapChainDesc.BufferCount;    // 裏表の２つ
-    // デスクリプタヒープの生成
-    device->CreateDescriptorHeap(&rtvHeapDesc, IID_PPV_ARGS(&rtvHeap));
-
-    // バックバッファ
-    std::vector<ComPtr<ID3D12Resource>> backBuffers;
-    backBuffers.resize(swapChainDesc.BufferCount);
 
     // スワップチェーンの全てのバッファについて処理する
     for (size_t i = 0; i < backBuffers.size(); i++) {
@@ -230,10 +188,46 @@ void DirectXCommon::DeviceInitilize()
 
 void DirectXCommon::CommandInitilize()
 {
+    HRESULT result{};
+
+    // コマンドアロケータを生成
+    result = device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&commandAllocator));
+    assert(SUCCEEDED(result));
+
+    // コマンドリストを生成
+    result = device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, commandAllocator.Get(), nullptr, IID_PPV_ARGS(&commandList));
+    assert(SUCCEEDED(result));
+
+    //コマンドキューの設定
+    D3D12_COMMAND_QUEUE_DESC commandQueueDesc{};
+    //コマンドキューを生成
+    result = device->CreateCommandQueue(&commandQueueDesc, IID_PPV_ARGS(&commandQueue));
+    assert(SUCCEEDED(result));
 }
 
 void DirectXCommon::SwapChainInitilize()
 {
+    HRESULT result{};
+    // スワップチェーンの設定
+    swapChainDesc.Width = 1280;
+    swapChainDesc.Height = 720;
+    swapChainDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;  // 色情報の書式
+    swapChainDesc.SampleDesc.Count = 1; // マルチサンプルしない
+    swapChainDesc.BufferUsage = DXGI_USAGE_BACK_BUFFER; // バックバッファ用
+    swapChainDesc.BufferCount = 2;  // バッファ数を２つに設定
+    swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD; // フリップ後は破棄
+    swapChainDesc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
+
+    ComPtr<IDXGISwapChain1> swapChain1;
+    // スワップチェーンの生成
+    result = dxgiFactory->CreateSwapChainForHwnd(
+        commandQueue.Get(), winApp_->GetHwnd(), &swapChainDesc, nullptr, nullptr, &swapChain1);
+    assert(SUCCEEDED(result));
+
+
+    // SwapChain4を得る
+    swapChain1->QueryInterface(IID_PPV_ARGS(&swapChain));
+    assert(SUCCEEDED(result));
 }
 
 void DirectXCommon::RenderTargetInitialize()
