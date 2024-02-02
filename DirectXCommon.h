@@ -3,6 +3,8 @@
 #include<dxgi1_6.h>
 #include<wrl.h>
 
+#include <vector>
+
 #include"WinApp.h"
 
 class DirectXCommon
@@ -39,6 +41,8 @@ private:
 	DXGI_SWAP_CHAIN_DESC1 swapChainDesc{};
 	ComPtr<IDXGISwapChain4> swapChain;
 
+	D3D12_DESCRIPTOR_HEAP_DESC rtvHeapDesc{};
 	ComPtr<ID3D12DescriptorHeap> rtvHeap;
+	std::vector<ComPtr<ID3D12Resource>>backBuffers;
 };
 

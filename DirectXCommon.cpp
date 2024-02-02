@@ -1,6 +1,6 @@
 #include "DirectXCommon.h"
 
-#include <vector>
+
 
 #include <cassert>
 
@@ -15,32 +15,7 @@ void DirectXCommon::Initilize(WinApp*winApp)
 
     // DirectX初期化処理　ここから
   
-    ComPtr<IDXGISwapChain4> swapChain;
-    ComPtr<ID3D12DescriptorHeap> rtvHeap;
-
-
-    
-
-    // デスクリプタヒープの設定
-    rtvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV; // レンダーターゲットビュー
-    rtvHeapDesc.NumDescriptors = swapChainDesc.BufferCount;    // 裏表の２つ
-
-    // スワップチェーンの全てのバッファについて処理する
-    for (size_t i = 0; i < backBuffers.size(); i++) {
-        // スワップチェーンからバッファを取得
-        swapChain->GetBuffer((UINT)i, IID_PPV_ARGS(&backBuffers[i]));
-        // デスクリプタヒープのハンドルを取得
-        D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle = rtvHeap->GetCPUDescriptorHandleForHeapStart();
-        // 裏か表かでアドレスがずれる
-        rtvHandle.ptr += i * device->GetDescriptorHandleIncrementSize(rtvHeapDesc.Type);
-        // レンダーターゲットビューの設定
-        D3D12_RENDER_TARGET_VIEW_DESC rtvDesc{};
-        // シェーダーの計算結果をSRGBに変換して書き込む
-        rtvDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
-        rtvDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
-        // レンダーターゲットビューの生成
-        device->CreateRenderTargetView(backBuffers[i].Get(), &rtvDesc, rtvHandle);
-    }
+  
 
     // リソース設定
     D3D12_RESOURCE_DESC depthResourceDesc{};
@@ -232,6 +207,30 @@ void DirectXCommon::SwapChainInitilize()
 
 void DirectXCommon::RenderTargetInitialize()
 {
+    // デスクリプタヒープの設定
+    rtvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV; // レンダーターゲットビュー
+    rtvHeapDesc.NumDescriptors = swapChainDesc.BufferCount;    // 裏表の２つ
+    device->CreateDescriptorHeap(&rtvHeapDesc, IID_PPV_ARGS(&rtvHeap));
+
+    //バックバッファ
+    backBuffers.resize(swapChainDesc.BufferCount);
+
+    // スワップチェーンの全てのバッファについて処理する
+    for (size_t i = 0; i < backBuffers.size(); i++) {
+        // スワップチェーンからバッファを取得
+        swapChain->GetBuffer((UINT)i, IID_PPV_ARGS(&backBuffers[i]));
+        // デスクリプタヒープのハンドルを取得
+        D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle = rtvHeap->GetCPUDescriptorHandleForHeapStart();
+        // 裏か表かでアドレスがずれる
+        rtvHandle.ptr += i * device->GetDescriptorHandleIncrementSize(rtvHeapDesc.Type);
+        // レンダーターゲットビューの設定
+        D3D12_RENDER_TARGET_VIEW_DESC rtvDesc{};
+        // シェーダーの計算結果をSRGBに変換して書き込む
+        rtvDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
+        rtvDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
+        // レンダーターゲットビューの生成
+        device->CreateRenderTargetView(backBuffers[i].Get(), &rtvDesc, rtvHandle);
+    }
 }
 
 void DirectXCommon::DepthBufferInitilize()
