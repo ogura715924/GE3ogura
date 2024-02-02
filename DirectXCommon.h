@@ -14,6 +14,11 @@ private:
 public:
 	void Initilize(WinApp* winApp);
 
+	//描画前処理
+	void PreDraw();
+	//描画後処理
+	void PostDraw();
+
 private: 
 	//デバイス
 	void DeviceInitilize();
@@ -44,5 +49,12 @@ private:
 	D3D12_DESCRIPTOR_HEAP_DESC rtvHeapDesc{};
 	ComPtr<ID3D12DescriptorHeap> rtvHeap;
 	std::vector<ComPtr<ID3D12Resource>>backBuffers;
+
+	ComPtr<ID3D12Resource> depthBuff;
+	D3D12_DESCRIPTOR_HEAP_DESC dsvHeapDesc{};
+	ComPtr<ID3D12DescriptorHeap> dsvHeap;
+
+	ComPtr<ID3D12Fence> fence;
+	UINT64 fenceVal = 0;
 };
 

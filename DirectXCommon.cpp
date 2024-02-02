@@ -13,61 +13,27 @@ void DirectXCommon::Initilize(WinApp*winApp)
 {
    this-> winApp_ = winApp;
 
-    // DirectX初期化処理　ここから
+   //デバイス
+   DeviceInitilize();
+   //コマンド
+   CommandInitilize();
+   //スワップチェーン
+   SwapChainInitilize();
+   //レンダーターゲット
+   RenderTargetInitialize();
+   //深度バッファ
+   DepthBufferInitilize();
+   //フェンス
+   FenceInitilize();
   
-  
+}
 
-    // リソース設定
-    D3D12_RESOURCE_DESC depthResourceDesc{};
-    depthResourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
-    depthResourceDesc.Width = WinApp::window_width; // レンダーターゲットに合わせる
-    depthResourceDesc.Height = WinApp::window_height; // レンダーターゲットに合わせる
-    depthResourceDesc.DepthOrArraySize = 1;
-    depthResourceDesc.Format = DXGI_FORMAT_D32_FLOAT; // 深度値フォーマット
-    depthResourceDesc.SampleDesc.Count = 1;
-    depthResourceDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL; // デプスステンシル
+void DirectXCommon::PreDraw()
+{
+}
 
-    // 深度値用ヒーププロパティ
-    D3D12_HEAP_PROPERTIES depthHeapProp{};
-    depthHeapProp.Type = D3D12_HEAP_TYPE_DEFAULT;
-    // 深度値のクリア設定
-    D3D12_CLEAR_VALUE depthClearValue{};
-    depthClearValue.DepthStencil.Depth = 1.0f; // 深度値1.0f（最大値）でクリア
-    depthClearValue.Format = DXGI_FORMAT_D32_FLOAT; // 深度値フォーマット
-    // リソース生成
-    ComPtr<ID3D12Resource> depthBuff;
-    result = device->CreateCommittedResource(
-        &depthHeapProp,
-        D3D12_HEAP_FLAG_NONE,
-        &depthResourceDesc,
-        D3D12_RESOURCE_STATE_DEPTH_WRITE, // 深度値書き込みに使用
-        &depthClearValue,
-        IID_PPV_ARGS(&depthBuff));
-
-    // 深度ビュー用デスクリプタヒープ作成
-    D3D12_DESCRIPTOR_HEAP_DESC dsvHeapDesc{};
-    dsvHeapDesc.NumDescriptors = 1; // 深度ビューは1つ
-    dsvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV; // デプスステンシルビュー
-    ComPtr<ID3D12DescriptorHeap> dsvHeap;
-    result = device->CreateDescriptorHeap(&dsvHeapDesc, IID_PPV_ARGS(&dsvHeap));
-
-    // 深度ビュー作成
-    D3D12_DEPTH_STENCIL_VIEW_DESC dsvDesc = {};
-    dsvDesc.Format = DXGI_FORMAT_D32_FLOAT; // 深度値フォーマット
-    dsvDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
-    device->CreateDepthStencilView(
-        depthBuff.Get(),
-        &dsvDesc,
-        dsvHeap->GetCPUDescriptorHandleForHeapStart());
-
-    // フェンスの生成
-    ComPtr<ID3D12Fence> fence;
-    UINT64 fenceVal = 0;
-
-    result = device->CreateFence(fenceVal, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&fence));
-    assert(SUCCEEDED(result));
-
-    // DirectX初期化処理　ここまで
+void DirectXCommon::PostDraw()
+{
 }
 
 void DirectXCommon::DeviceInitilize()
@@ -235,8 +201,55 @@ void DirectXCommon::RenderTargetInitialize()
 
 void DirectXCommon::DepthBufferInitilize()
 {
+    HRESULT result{};
+
+    // リソース設定
+    D3D12_RESOURCE_DESC depthResourceDesc{};
+    depthResourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
+    depthResourceDesc.Width = WinApp::window_width; // レンダーターゲットに合わせる
+    depthResourceDesc.Height = WinApp::window_height; // レンダーターゲットに合わせる
+    depthResourceDesc.DepthOrArraySize = 1;
+    depthResourceDesc.Format = DXGI_FORMAT_D32_FLOAT; // 深度値フォーマット
+    depthResourceDesc.SampleDesc.Count = 1;
+    depthResourceDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL; // デプスステンシル
+
+    // 深度値用ヒーププロパティ
+    D3D12_HEAP_PROPERTIES depthHeapProp{};
+    depthHeapProp.Type = D3D12_HEAP_TYPE_DEFAULT;
+    // 深度値のクリア設定
+    D3D12_CLEAR_VALUE depthClearValue{};
+    depthClearValue.DepthStencil.Depth = 1.0f; // 深度値1.0f（最大値）でクリア
+    depthClearValue.Format = DXGI_FORMAT_D32_FLOAT; // 深度値フォーマット
+    // リソース生成
+    result = device->CreateCommittedResource(
+        &depthHeapProp,
+        D3D12_HEAP_FLAG_NONE,
+        &depthResourceDesc,
+        D3D12_RESOURCE_STATE_DEPTH_WRITE, // 深度値書き込みに使用
+        &depthClearValue,
+        IID_PPV_ARGS(&depthBuff));
+
+    // 深度ビュー用デスクリプタヒープ作成
+    dsvHeapDesc.NumDescriptors = 1; // 深度ビューは1つ
+    dsvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV; // デプスステンシルビュー
+    result = device->CreateDescriptorHeap(&dsvHeapDesc, IID_PPV_ARGS(&dsvHeap));
+
+    // 深度ビュー作成
+    D3D12_DEPTH_STENCIL_VIEW_DESC dsvDesc = {};
+    dsvDesc.Format = DXGI_FORMAT_D32_FLOAT; // 深度値フォーマット
+    dsvDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
+    device->CreateDepthStencilView(
+        depthBuff.Get(),
+        &dsvDesc,
+        dsvHeap->GetCPUDescriptorHandleForHeapStart());
+
 }
 
 void DirectXCommon::FenceInitilize()
 {
+    HRESULT result{  };
+
+    // フェンスの生成
+    result = device->CreateFence(fenceVal, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&fence));
+    assert(SUCCEEDED(result));
 }

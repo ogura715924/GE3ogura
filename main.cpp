@@ -210,7 +210,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #pragma region DirectX初期化処理
     dxCommon_ = new DirectXCommon();
-    dxCommon_->Initilize();
+    dxCommon_->Initilize(winApp_);
 #pragma endregion
 
     //Inputの生成、初期化
