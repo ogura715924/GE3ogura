@@ -21,8 +21,8 @@ public:
 	void PostDraw();
 
 	//Getter
-	ID3D12Device* Getdevice()const { return device.Get(); };
-	ID3D12GraphicsCommandList* GetcommandList()const { return commandList.Get(); };
+	ID3D12Device* GetDevice()const { return device.Get(); };
+	ID3D12GraphicsCommandList* GetCommandList()const { return commandList.Get(); };
 
 
 private: 
