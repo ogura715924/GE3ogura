@@ -19,6 +19,11 @@ public:
 	//描画後処理
 	void PostDraw();
 
+	//Getter
+	ID3D12Device* Getdevice()const { return device.Get(); };
+	ID3D12GraphicsCommandList* GetcommandList()const { return commandList.Get(); };
+
+
 private: 
 	//デバイス
 	void DeviceInitilize();
@@ -33,6 +38,7 @@ private:
 	//フェンス
 	void FenceInitilize();
 
+	
 private:
 	WinApp* winApp_ = nullptr;
 
@@ -56,5 +62,8 @@ private:
 
 	ComPtr<ID3D12Fence> fence;
 	UINT64 fenceVal = 0;
+
+
+	D3D12_RESOURCE_BARRIER barrierDesc{};
 };
 
