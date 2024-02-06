@@ -4,6 +4,7 @@
 #include<wrl.h>
 
 #include <vector>
+#include<chrono>
 
 #include"WinApp.h"
 
@@ -38,6 +39,11 @@ private:
 	//フェンス
 	void FenceInitilize();
 
+	//FPS固定初期化処理
+	void InitilizeFixFPS();
+
+	//FPS固定更新処理
+	void UpdateFixFPS();
 	
 private:
 	WinApp* winApp_ = nullptr;
@@ -65,5 +71,8 @@ private:
 
 
 	D3D12_RESOURCE_BARRIER barrierDesc{};
+
+	//記録用時間計測の変数
+	std::chrono::steady_clock::time_point reference_;
 };
 
