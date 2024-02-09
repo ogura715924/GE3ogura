@@ -1,17 +1,16 @@
-struct Material
+cbuffer Material : register(b0)
 {
     float4 color;
 };
-ConstantBuffer<Material> gMaterial : register(b0);
 
 struct PixelShaderOutput
 {
-float4 color : SV_TARGET0;
+    float4 color : SV_TARGET;
 };
 
 PixelShaderOutput main()
 {
-PixelShaderOutput output;
-output.color= gMaterial.color;
-return output;
+    PixelShaderOutput output;
+    output.color = color; 
+    return output;
 }
