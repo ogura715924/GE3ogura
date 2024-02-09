@@ -57,6 +57,11 @@ void DirectXCommon::PreDraw()
     commandList->ClearRenderTargetView(rtvHandle, clearColor, 0, nullptr);
     commandList->ClearDepthStencilView(dsvHandle, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
 
+
+    // 描画用のDescriptorHeapの設定
+    ID3D12DescriptorHeap* descriptorHeaps[] = { srvDescriptorHeap.Get() };
+    commandList->SetDescriptorHeaps(1, descriptorHeaps);
+
     // ４．描画コマンドここから
     // ビューポート設定コマンド
     D3D12_VIEWPORT viewport{};
@@ -275,7 +280,6 @@ void DirectXCommon::RenderTargetInitialize()
         // 裏か表かでアドレスがずれる
         rtvHandle.ptr += i * device->GetDescriptorHandleIncrementSize(rtvHeapDesc.Type);
         // レンダーターゲットビューの設定
-        D3D12_RENDER_TARGET_VIEW_DESC rtvDesc{};
         // シェーダーの計算結果をSRGBに変換して書き込む
         rtvDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
         rtvDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;

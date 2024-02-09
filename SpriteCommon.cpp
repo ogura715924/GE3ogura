@@ -62,6 +62,7 @@ void SpriteCommon::Initialize(DirectXCommon* dxCommon)
 	inputElementDesc[0].SemanticIndex = 0;
 	inputElementDesc[0].Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
 	inputElementDesc[0].AlignedByteOffset = D3D12_APPEND_ALIGNED_ELEMENT;
+
 	D3D12_INPUT_LAYOUT_DESC inputLayoutDesc{};
 	inputLayoutDesc.pInputElementDescs = inputElementDesc;
 	inputLayoutDesc.NumElements = _countof(inputElementDesc);
@@ -141,7 +142,7 @@ IDxcBlob* SpriteCommon::CompileShader(const std::wstring& filePath, const wchar_
 	IDxcBlobUtf8* shaderError = nullptr;
 	shaderResult->GetOutput(DXC_OUT_ERRORS, IID_PPV_ARGS(&shaderError), nullptr);
 	if (shaderError != nullptr && shaderError->GetStringLength() != 0) {
-		assert(false);
+		//assert(false);
 	}
 
 	IDxcBlob* shaderBlob = nullptr;

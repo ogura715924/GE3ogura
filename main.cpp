@@ -5,6 +5,8 @@
 #include"SpriteCommon.h"
 #include"Sprite.h"
 
+#include"ImGuiManager.h"
+
 
 // Windowsアプリでのエントリーポイント(main関数)
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
@@ -26,6 +28,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     input_=new Input();
     input_->Initialize(winApp_);
 
+    ImGuiManager* imgui = ImGuiManager::Create();
+    ImGuiManager::Initialize(winApp_->GetHwnd(), dxCommon_);
+
     // スプライトコモン
     SpriteCommon* Common = new SpriteCommon();
     Common->Initialize(dxCommon_);
@@ -42,23 +47,30 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
             //ゲームループを抜ける
             break;
         }
+
+        ImGuiManager::NewFrame();
+        imgui->ShowDemo();
       
         //入力の更新
         input_->Update();
 
         //更新前処理
+        ImGuiManager::CreateCommand();
         dxCommon_->PreDraw();
+
         
         //スプライト
         sp->Draw();
 
         //更新後処理
+        ImGuiManager::CommandsExcute(dxCommon_->GetCommandList());
         dxCommon_->PostDraw();
     }
 
     //deleteデリート置き場
     delete sp;
     delete Common;
+    delete imgui;
     delete input_;
     delete dxCommon_;
     winApp_->Finalize();

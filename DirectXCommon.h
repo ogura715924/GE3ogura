@@ -24,6 +24,14 @@ public:
 	ID3D12Device* GetDevice()const { return device.Get(); };
 	ID3D12GraphicsCommandList* GetCommandList()const { return commandList.Get(); };
 
+	// スワップチェーン
+	DXGI_SWAP_CHAIN_DESC1 GetSwapChainDesc() { return swapChainDesc; }
+
+	// RTVディスク
+	D3D12_RENDER_TARGET_VIEW_DESC GetRtvDesc() { return rtvDesc; }
+
+	// SRVディスクリプタヒープ
+	ID3D12DescriptorHeap* GetSrvDescriptorHeap() { return srvDescriptorHeap.Get(); }
 
 private: 
 	//デバイス
@@ -74,6 +82,9 @@ private:
 
 
 	D3D12_RESOURCE_BARRIER barrierDesc{};
+
+	// レンダーターゲットビューの設定
+	D3D12_RENDER_TARGET_VIEW_DESC rtvDesc{};
 
 	// ディスクリプタヒープ
 	// RTV(ゲーム画面を保存しておく)
