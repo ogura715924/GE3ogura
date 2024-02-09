@@ -108,6 +108,20 @@ void SpriteCommon::Initialize(DirectXCommon* dxCommon)
 	assert(SUCCEEDED(result));
 }
 
+DirectX::ScratchImage SpriteCommon::LoadTexture(const std::wstring& filePath)
+{
+	DirectX::ScratchImage image{};
+	HRESULT result = DirectX::LoadFromWICFile(filePath.c_str(), DirectX::WIC_FLAGS_FORCE_SRGB, nullptr, image);
+	assert(SUCCEEDED(result));
+
+	DirectX::ScratchImage mipImages{};
+	result = DirectX::GenerateMipMaps(image.GetImage(), image.GetImageCount(), DirectX::TEX_FILTER_SRGB
+		, 0, mipImages);
+	assert(SUCCEEDED(result));
+
+	return image;
+}
+
 IDxcBlob* SpriteCommon::CompileShader(const std::wstring& filePath, const wchar_t* profile, IDxcUtils* dxcUtils, IDxcCompiler3* dxcCompiler, IDxcIncludeHandler* includeHandler)
 {
 	//hlsl
