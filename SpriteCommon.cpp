@@ -28,12 +28,17 @@ void SpriteCommon::Initialize(DirectXCommon* dxCommon)
 	D3D12_ROOT_SIGNATURE_DESC descriptorRootSignature{};
 	descriptorRootSignature.Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
 	
-	// RootParameter作成
-	D3D12_ROOT_PARAMETER rootParameters[1]{};
-	// 色
+	//RootParameter作成
+	D3D12_ROOT_PARAMETER rootParameters[2]{};
+	//色
 	rootParameters[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
 	rootParameters[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 	rootParameters[0].Descriptor.ShaderRegister = 0;
+
+	//行列
+	rootParameters[1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+	rootParameters[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
+	rootParameters[1].Descriptor.ShaderRegister = 0;
 
 	descriptorRootSignature.pParameters = rootParameters;
 	descriptorRootSignature.NumParameters = _countof(rootParameters);
@@ -46,12 +51,12 @@ void SpriteCommon::Initialize(DirectXCommon* dxCommon)
 		assert(false);
 	}
 
-	// バイナリを基に作成
+	//バイナリを基に作成
 	result = dxCommon_->GetDevice()->CreateRootSignature(0, signatureBlob->GetBufferPointer(),
 		signatureBlob->GetBufferSize(), IID_PPV_ARGS(&rootSignature));
 	assert(SUCCEEDED(result));
 
-	// InPutLayout
+	//InPutLayout
 	D3D12_INPUT_ELEMENT_DESC inputElementDesc[1] = {};
 	inputElementDesc[0].SemanticName = "POSITION";
 	inputElementDesc[0].SemanticIndex = 0;
@@ -61,18 +66,18 @@ void SpriteCommon::Initialize(DirectXCommon* dxCommon)
 	inputLayoutDesc.pInputElementDescs = inputElementDesc;
 	inputLayoutDesc.NumElements = _countof(inputElementDesc);
 
-	// BlendState
+	//BlendState
 	D3D12_BLEND_DESC blendDesc{};
 	blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
 
-	// Rasterizer
+	//Rasterizer
 	D3D12_RASTERIZER_DESC rasterizerDesc{};
-	// 裏面を描画しない
+	//裏面を描画しない
 	rasterizerDesc.CullMode = D3D12_CULL_MODE_NONE;
-	// 塗りつぶし
+	//塗りつぶし
 	rasterizerDesc.FillMode = D3D12_FILL_MODE_SOLID;
 
-	// 読み込み処理
+	//読み込み処理
 	ComPtr<IDxcBlob> vertexShaderBlob = CompileShader(L"Resources/shaders/SpriteVS.hlsl",
 		L"vs_6_0", dxcUtils.Get(), dxcCompiler.Get(), includeHandler.Get());
 	assert(SUCCEEDED(result));
@@ -81,7 +86,7 @@ void SpriteCommon::Initialize(DirectXCommon* dxCommon)
 		L"ps_6_0", dxcUtils.Get(), dxcCompiler.Get(), includeHandler.Get());
 	assert(SUCCEEDED(result));
 
-	// PipelineState
+	//PipelineState
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC graphicsPipelineStateDesc{};
 	graphicsPipelineStateDesc.pRootSignature = rootSignature.Get();
 	graphicsPipelineStateDesc.InputLayout = inputLayoutDesc;
