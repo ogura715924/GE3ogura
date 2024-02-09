@@ -125,7 +125,7 @@ IDxcBlob* SpriteCommon::CompileShader(const std::wstring& filePath, const wchar_
 		L"-E", L"main",
 		L"-T", profile,
 		L"-Zi", L"-Qembed_debug",
-		L"Od",
+		L"-Od",
 		L"-Zpr"
 	};
 	IDxcResult* shaderResult = nullptr;
