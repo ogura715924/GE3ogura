@@ -26,6 +26,7 @@ LRESULT WinApp::WindowProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 
 void WinApp::Initialize()
 {  
+    //一番最初に呼び出す
     CoInitializeEx(0, COINIT_MULTITHREADED);
 
     // ウィンドウクラスの設定
@@ -79,6 +80,7 @@ bool WinApp::Update()
 
 void WinApp::Finalize()
 {
+    //一番最後に呼び出される
     CoUninitialize();
 
     // ウィンドウクラスを登録解除
