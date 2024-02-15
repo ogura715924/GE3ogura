@@ -110,6 +110,17 @@ D3D12_GPU_DESCRIPTOR_HANDLE TextureManager::GetSrvHandleGPU(uint32_t textureInde
 	return data.srvHandleGPU;
 }
 
+const DirectX::TexMetadata& TextureManager::GetMetaData(uint32_t textureIndex)
+{
+	//対象の要素番号がメモリの範囲外を選択していないか確認
+	assert(textureIndex < DirectXCommon::kMaxSRVCount);
+
+	TextureData& data = textureDatas[textureIndex];
+
+	//とうそ番号のTextureDataを受け取る
+	return data.metaData;
+}
+
 void TextureManager::UploadTextureData(ID3D12Resource* texture, const DirectX::ScratchImage& mipImages)
 {
 	const DirectX::TexMetadata& metaData = mipImages.GetMetadata();
