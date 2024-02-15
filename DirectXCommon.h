@@ -55,6 +55,9 @@ private:
 
 	//FPSŒÅ’èXVˆ—
 	void UpdateFixFPS();
+
+public:
+	static const uint32_t kMaxSRVCount;
 	
 private:
 	WinApp* winApp_ = nullptr;

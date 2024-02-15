@@ -32,7 +32,7 @@ private:
 	};
 
 public:
-	void Initialize(SpriteCommon*common);
+	void Initialize(SpriteCommon*common,std::wstring textureFilePath);
 	void Update();
 void Draw();
 
@@ -46,6 +46,8 @@ void SetPosition(DirectX::XMFLOAT2 pos) { position = pos; };
 void SetRotation(float rot) { rotation = rot; };
 void SetColor(DirectX::XMFLOAT4 color) { color_ = color; };
 void SetSize(DirectX::XMFLOAT2 size) { this->size = size; };
+
+void SetTexture(std::wstring textureFilePath);
 
 private:
 //頂点情報作成
@@ -78,9 +80,6 @@ private:
 	ComPtr<ID3D12Resource> wvpResource;
 	DirectX::XMMATRIX* wvpData = nullptr;
 
-	//画像の保存先のアドレス
-	D3D12_GPU_DESCRIPTOR_HANDLE textureSrvHandleGPU;
-
 	//パラメータ
 	DirectX::XMFLOAT4 color_ = { 1.0f,1.0f,1.0f,1.0f };
 
@@ -91,7 +90,10 @@ private:
 	Transform transform = { {1,1,1}, {0,0,0},{0,0,0} };
 	DirectX::XMFLOAT2 position = { 0,0 };
 	float rotation = 0;
-	DirectX::XMFLOAT2 size = { 1,1 };
+	DirectX::XMFLOAT2 size = { 512,512 };
+
+	//画像の保存されている場所
+	uint32_t textureIndex_ = 0;
 
 	// カメラ
 	Transform cameraTransform{ {1,1,1},{0,0,0},{0,0,-5} };
