@@ -7,6 +7,8 @@
 
 #include"ImGuiManager.h"
 
+#include<vector>
+
 
 // Windowsアプリでのエントリーポイント(main関数)
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
@@ -36,9 +38,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     Common->Initialize(dxCommon_);
 
     // スプライト
-    Sprite* sp = new Sprite();
-    sp->Initialize(Common);
-
+    std::vector<Sprite*> sp;
+    for (int i = 0; i < 5; i++) {
+        Sprite* temp = new Sprite();
+        temp->SetPosition({ (float)i * 1,0 });
+        temp->Initialize(Common);
+        sp.push_back(temp);
+    }
 
     // ゲームループ
     while (true) {
@@ -54,21 +60,49 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
         //入力の更新
         input_->Update();
 
+
+        ////移動
+        //DirectX::XMFLOAT2 pos = sp->GetPosition();
+        //pos.x += 0.01f;
+        //sp->SetPosition(pos);
+        ////回転
+        //float rot = sp->GetRotation();
+        //rot += 0.01f;
+        //sp->SetRotation(rot);
+        ////色
+        //DirectX::XMFLOAT4 color = sp->GetColor();
+        //color.x -= 0.01f;
+        //if (color.x < 0) {
+        //    color.x = 1.0f;
+        //}
+        //sp->SetColor(color);
+
+        ////サイズ
+        //DirectX::XMFLOAT2 size = sp->GetSize();
+        //size.y += 0.1f;
+        //sp->SetSize(size);
+
+        for (int i = 0; i < 5; i++) {
+            sp[i]->Update();
+        }
         //更新前処理
         ImGuiManager::CreateCommand();
         dxCommon_->PreDraw();
         Common->SpritePreDraw();
         
         //スプライト
-        sp->Draw();
-
+        for (int i = 0; i < 5; i++) {
+            sp[i]->Draw();
+        }
         //更新後処理
         ImGuiManager::CommandsExcute(dxCommon_->GetCommandList());
         dxCommon_->PostDraw();
     }
 
     //deleteデリート置き場
-    delete sp;
+    for (int i = 0; i < 5; i++) {
+        delete sp[i];
+    }
     delete Common;
     delete imgui;
     delete input_;
