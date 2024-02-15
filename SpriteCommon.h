@@ -14,15 +14,17 @@ private:
 	template<class T>using ComPtr = Microsoft::WRL::ComPtr<T>;
 public:
 	void Initialize(DirectXCommon*dxCommon);
+	void SpritePreDraw();
 
 	// Getter
 	ID3D12RootSignature* GetRootSignature() { return rootSignature.Get(); }
 	ID3D12PipelineState* GetPipelineState() { return pipelineState.Get(); }
+	DirectXCommon* GetDirectXCommon() { return dxCommon_; }
 
 	//画像読み込み
 	DirectX::ScratchImage LoadTexture(const std::wstring& filePath);
 	//読み込んだ画像をGPU(シェーダーに送る)
-	void UploadTexture(ID3D12Resource* texture, const DirectX::ScratchImage& mipImages);
+	void UploadTextureData(ID3D12Resource* texture, const DirectX::ScratchImage& mipImages);
 
 private:
 	static IDxcBlob* CompileShader(

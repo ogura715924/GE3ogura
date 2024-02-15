@@ -28,20 +28,45 @@ void SpriteCommon::Initialize(DirectXCommon* dxCommon)
 	D3D12_ROOT_SIGNATURE_DESC descriptorRootSignature{};
 	descriptorRootSignature.Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
 	
+	//画像用のディスクリプタ範囲
+	D3D12_DESCRIPTOR_RANGE descriptorRange[1]{};
+	descriptorRange[0].BaseShaderRegister = 0;
+	descriptorRange[0].NumDescriptors = 1;
+	descriptorRange[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+	descriptorRange[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+
 	//RootParameter作成
-	D3D12_ROOT_PARAMETER rootParameters[2]{};
+	D3D12_ROOT_PARAMETER rootParameters[3]{};
 	//色
 	rootParameters[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
 	rootParameters[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 	rootParameters[0].Descriptor.ShaderRegister = 0;
-
 	//行列
 	rootParameters[1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
 	rootParameters[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
 	rootParameters[1].Descriptor.ShaderRegister = 0;
+	//画像
+	rootParameters[2].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+	rootParameters[2].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+	rootParameters[2].DescriptorTable.pDescriptorRanges = descriptorRange;
+	rootParameters[2].DescriptorTable.NumDescriptorRanges = _countof(descriptorRange);
 
 	descriptorRootSignature.pParameters = rootParameters;
 	descriptorRootSignature.NumParameters = _countof(rootParameters);
+
+	//Sampleの設定
+	D3D12_STATIC_SAMPLER_DESC staticSamples[1] = {};
+	staticSamples[0].Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;
+	staticSamples[0].AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+	staticSamples[0].AddressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+	staticSamples[0].AddressW = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+	staticSamples[0].ComparisonFunc = D3D12_COMPARISON_FUNC_NEVER;
+	staticSamples[0].MaxLOD = D3D12_FLOAT32_MAX;
+	staticSamples[0].ShaderRegister = 0;
+	staticSamples[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+	
+	descriptorRootSignature.pStaticSamplers = staticSamples;
+	descriptorRootSignature.NumStaticSamplers = _countof(staticSamples);
 
 	//シリアライズとしてバイナリにする
 	ComPtr<ID3D10Blob> signatureBlob;
@@ -57,15 +82,22 @@ void SpriteCommon::Initialize(DirectXCommon* dxCommon)
 	assert(SUCCEEDED(result));
 
 	//InPutLayout
-	D3D12_INPUT_ELEMENT_DESC inputElementDesc[1] = {};
+	D3D12_INPUT_ELEMENT_DESC inputElementDesc[2] = {};
 	inputElementDesc[0].SemanticName = "POSITION";
 	inputElementDesc[0].SemanticIndex = 0;
 	inputElementDesc[0].Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
 	inputElementDesc[0].AlignedByteOffset = D3D12_APPEND_ALIGNED_ELEMENT;
 
+	inputElementDesc[1].SemanticName = "TEXCOORD";
+	inputElementDesc[1].SemanticIndex = 0;
+	inputElementDesc[1].Format = DXGI_FORMAT_R32G32_FLOAT;
+	inputElementDesc[1].AlignedByteOffset = D3D12_APPEND_ALIGNED_ELEMENT;
+
+
 	D3D12_INPUT_LAYOUT_DESC inputLayoutDesc{};
 	inputLayoutDesc.pInputElementDescs = inputElementDesc;
 	inputLayoutDesc.NumElements = _countof(inputElementDesc);
+
 
 	//BlendState
 	D3D12_BLEND_DESC blendDesc{};
@@ -108,6 +140,15 @@ void SpriteCommon::Initialize(DirectXCommon* dxCommon)
 	assert(SUCCEEDED(result));
 }
 
+void SpriteCommon::SpritePreDraw()
+{
+
+	dxCommon_->GetCommandList()->SetGraphicsRootSignature(GetRootSignature());
+	dxCommon_->GetCommandList()->SetPipelineState(GetPipelineState());
+	dxCommon_->GetCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+}
+
 DirectX::ScratchImage SpriteCommon::LoadTexture(const std::wstring& filePath)
 {
 	//テクスチャファイルを読み込んでプログラムで扱えるようにする
@@ -124,7 +165,7 @@ DirectX::ScratchImage SpriteCommon::LoadTexture(const std::wstring& filePath)
 	return image;
 }
 
-void SpriteCommon::UploadTexture(ID3D12Resource* texture, const DirectX::ScratchImage& mipImages)
+void SpriteCommon::UploadTextureData(ID3D12Resource* texture, const DirectX::ScratchImage& mipImages)
 {
 	//Meta情報を取得
 	const DirectX::TexMetadata& metaData = mipImages.GetMetadata();
